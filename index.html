@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Chat</title>
+    <style>
+        .odd {
+            background-color: lightgreen;
+        }
+
+        .even {
+            background-color: white;
+        }
+
+        div.scroll {
+            background-color: whitesmoke;
+            width: 600px;
+            height: 512px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        tr {
+            height: 32px;
+        }
+
+        td {
+            text-align: start;
+            width: 256px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <script>
+        function give_and_take() {
+            var table = document.getElementById("chat");
+            var box = document.getElementById("message");
+            var row = table.insertRow(-1);
+            var lft = row.insertCell(0);
+            var rht = row.insertCell(-1);
+            rht.innerHTML = box.value;
+            rht.className = "odd";
+            var row = table.insertRow(-1);
+            var lft = row.insertCell(0);
+            lft.className = "even";
+            var rht = row.insertCell(-1);
+
+            data = btoa(encodeURIComponent(box.value));
+            box.value = "";
+            const sse = new EventSource("/generate?prompt=" + data);
+            sse.onmessage = (event) => {
+                lft.innerHTML += event.data;
+            };
+            sse.onerror = (event) => {
+                sse.close();
+            }
+        }
+    </script>
+    <div class="scroll">
+        <table style="width:100%" id="chat">
+        </table>
+    </div>
+    <div>
+        <label> User: </label>
+        <input type="textarea" id="message" placeholder="Enter a message" style="width:512px;height:64px;">
+        <button type="submit" onclick="give_and_take()">Send</button>
+    </div>
+</body>
+
+</html>
